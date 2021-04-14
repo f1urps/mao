@@ -1,0 +1,46 @@
+
+
+Are rules enforced automatically by the game, or by the players?
+
+Two options for rule enforcement:
+
+(1) Rules are written in plain english and enforced by the players.
+(2) Rules are encoded into the game and enforced by the game.
+
+DECISION:
+Include both 1 and 2
+
+
+
+
+
++============+
+|   CLIENT   |
++============+
+
+      /\
+      ||
+      || API
+      ||
+      \/
+
++============+
+|   SERVER   |
++============+
+
+
+CLIENT:
+* Display UI to the player
+* Provide interactive elements for the player to send input to the server
+* Relays player's actions to the server through an API
+
+SERVER:
+* Holds all game state, processes game logic
+* Receives player actions from API
+* Streams game state to all clients
+* Synchronizes game state between all player's clients
+
+
+
+
+
