@@ -1,17 +1,31 @@
 
 
-Are rules enforced automatically by the game, or by the players?
-
 Two options for rule enforcement:
 
 (1) Rules are written in plain english and enforced by the players.
 (2) Rules are encoded into the game and enforced by the game.
 
-DECISION:
-Include both 1 and 2
+OPTION 1:
++ Unlimited creativity for rules
++ Satisfaction of punishing others and being clever
+- Easy for dishonest players to hijack
+- Can be ambiguous & cause disagreement
+
+OPTION 2:
++ Unambiguous and fair
+- Limits creativity
+- May be difficult for non-technical players, depending on the UI
+- Removes the satisfaction of punishing others
+
+Impossible to "mix" these two styles of rules in the same game.
+The computer could falsely punish something if gameplay was affected by
+English-based rules it didn't understand
+
+COMPROMISE: Include both as options
+When configuring a game, select either "enforced" or "unenforced" mode
 
 
-
+============================================================================
 
 
 +============+
@@ -30,15 +44,98 @@ Include both 1 and 2
 
 
 CLIENT:
+* Written in JavaScript/HTML/CSS
 * Display UI to the player
 * Provide interactive elements for the player to send input to the server
 * Relays player's actions to the server through an API
 
 SERVER:
-* Holds all game state, processes game logic
+* Written in Python
+* Hosts several game rooms -- spawn a process for each one
+* Controls all game state
 * Receives player actions from API
 * Streams game state to all clients
-* Synchronizes game state between all player's clients
+
+API:
+* Implemented in gRPC (?)
+* server -> client: Constant streaming of game state
+* client -> server: Unary RPCs to perform actions
+
+
+============================================================================
+
+GAME MECHANIC IDEAS
+
+* Punishment
+    * A "punishment" means giving someone one extra card
+    * It's a consequence for breaking a rule
+    * Enforced mode: The game handles all punishment. Players cannot punish
+      each other.
+    * Unenforced mode: Players punish each other. They have an interface to
+      select a player to punish, and type a short reason for the punishment.
+
+* Disputing punishments
+    * A punishment can be disputed by another player with "bad call"
+    * This initiates a vote
+    * 1 minute time limit (configurable)
+    * Every player can vote "valid", "invalid", or "abstain"
+    * If at least half vote "invalid", the original punisher is punished.
+    * If at least half vote "valid", the original punishee AND the player
+      who disputed are punished.
+    * Otherwise, nothing happens.
+
+* Randomized base rules, chosen from a predefined set
+    * Enforced mode: Base rules are encoded, so the computer can enforce
+      them without showing anyone
+    * Unenforced mode: Base rules must be written in English and shown to
+      the "Mao" player
+
+* Point-of-order (POO)
+    * Every player has a button to initiate POO
+    * To prevent abuse, a player may be allowed a limited number of POOs
+    * To end POO, more than half of players must click their "end POO" button
+
+* Game chat
+    * Always enabled
+    * Players are punished for sending messages outside POO, unless they're
+      saying something required by a rule
+    * For example, playing a 7 and typing "Have a nice day" in the chat box
+
+* Game table layout
+    * Cards can be rotated in 2D plane, flipped upside down, and translated
+    * Allows for much more creative and outside-the-box rules
+    * These transformations may be disabled in game options
+
+* Turn timers
+    * Each player is given 30 seconds to move (also configurable in game options)
+    * The game does NOT tell anybody when it is their turn
+    * Timer is shown to everybody
+    * In enforced mode, the current player is known, so they are automatically
+      punished and gameplay continues
+    * In unenforced mode, the current player is not known, so no automatic punishment
+      is done. They must be manually punished, and the timer manually reset
+
+* Post-turn punishment window
+    * Only exists in unenforced mode
+    * After a turn ends, there is a 10-second window before anyone else can play
+    * Gives other players time to issue punishments
+    * Length of time is obviously also configurable
+
+* Rule encoding
+    * Only exists in enforced mode
+    * Players must encode their rules in a format the game can understand
+    * May take a "if-this-then-that" approach, with drop-down menus to
+      select conditions & consequents
+    * Examples:
+        - IF ([ace] is played) THEN (skip [1] player)
+        - IF ([hearts] is played) AND ([queen] is played) THEN (say ["Off with her head!"])
+        - IF ([7] is played) AND (last [N] cards are [7]) THEN (say ["Have a ", "very "*N, "nice day!"])
+        - IF ([any] is played) AND (card [1] prior is [2]) THEN (reverse direction)
+
+
+
+
+
 
 
 
