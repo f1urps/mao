@@ -1,0 +1,42 @@
+
+Client <---> Server <---> DB
+
+Things that client needs to send to server:
+    - Playing a card
+    - Reporting another player's card
+    - Updating a note (stream at regular interval)
+
+Things that server needs to send to client:
+    - Another player plays a card
+    - When the turn changes
+    - Streaming game state in general
+
+Should I use Colyseus or gRPC/Go?
+    - I'd rather work with a language/paradigm that I'm familiar with.
+    - Colyseus matchmaking and room management is very handy, but I could do it myself.
+    - Colyseus state synchronization is unnecessary.
+        * Game events are discrete and don't have to be tightly coordinated in time.
+        * Game state per client is very small and can be streamed easily.
+
+==========================================================================
+
+GameState {
+    players []Player
+    rules []Rule
+    stack []Card
+    deck []Card
+    turnQueue []PlayerUUID
+}
+
+Player {
+    uuid PlayerUUID
+    metadata PlayerMetadata
+    hand []Card
+}
+
+Rule {
+    creator PlayerUUID
+    definition RuleDefinition
+}
+
+
